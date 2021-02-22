@@ -197,7 +197,7 @@ bool is_dirty(const buffer& buf)
 
 line get_line(const text& txt, index row)
 {
-    return row >= 0 && row < (index)txt.size() ? txt[row] : line{};
+    return row >= 0 && row < static_cast<index>(txt.size()) ? txt[row] : line{};
 }
 
 index line_length(const line& ln)
@@ -258,7 +258,7 @@ buffer page_up(buffer buf, coord size)
 
 buffer page_down(buffer buf, coord size)
 {
-    if (buf.scroll.row + size.row < (index)buf.content.size()) {
+    if (buf.scroll.row + size.row < static_cast<index>(buf.content.size())) {
         buf.scroll.row += size.row;
         if (buf.cursor.row < buf.scroll.row)
             buf.cursor.row = buf.scroll.row + 1;
@@ -276,7 +276,7 @@ buffer move_cursor_up(buffer buf)
 
 buffer move_cursor_down(buffer buf)
 {
-    buf.cursor.row = std::min(buf.cursor.row + 1, (index)buf.content.size());
+    buf.cursor.row = std::min(buf.cursor.row + 1, static_cast<index>(buf.content.size()));
     return buf;
 }
 
@@ -288,7 +288,7 @@ buffer move_line_start(buffer buf)
 
 buffer move_line_end(buffer buf)
 {
-    if (buf.cursor.row < (index)buf.content.size())
+    if (buf.cursor.row < static_cast<index>(buf.content.size()))
         buf.cursor.col = line_length(buf.content[buf.cursor.row]);
     return buf;
 }
@@ -301,7 +301,7 @@ buffer move_buffer_start(buffer buf)
 
 buffer move_buffer_end(buffer buf)
 {
-    buf.cursor = {(index)buf.content.size(),0};
+    buf.cursor = {static_cast<index>(buf.content.size()),0};
     return buf;
 }
 
@@ -359,13 +359,13 @@ buffer scroll_to_cursor(buffer buf, coord wsize)
 buffer insert_new_line(buffer buf)
 {
     auto cur = buf.cursor;
-    if (cur.row == (index)buf.content.size()) {
+    if (cur.row == static_cast<index>(buf.content.size())) {
         buf.content = buf.content.push_back({});
         return move_cursor_down(buf);
     } else {
         auto ln = buf.content[cur.row];
         auto chr = line_char(ln, cur.col);
-        if (cur.row + 1 < (index)buf.content.size() || chr + 1 < ln.size()) {
+        if (cur.row + 1 < static_cast<index>(buf.content.size()) || chr + 1 < ln.size()) {
             buf.content = buf.content
                 .set(cur.row, ln.take(chr))
                 .insert(cur.row + 1, ln.drop(chr));
@@ -389,7 +389,7 @@ buffer insert_char(buffer buf, wchar_t value)
         utf8::append(value, std::back_inserter(ln));
         return ln.persistent();
     } ();
-    if (cur.row == (index)buf.content.size()) {
+    if (cur.row == static_cast<index>(buf.content.size())) {
         buf.content = buf.content.push_back(ln);
     } else {
         buf.content = buf.content.update(cur.row, [&] (auto l) {
@@ -411,7 +411,7 @@ buffer delete_char(buffer buf)
         });
     } else if (cur.row > 0) {
         auto ln1 = buf.content[cur.row - 1];
-        if (cur.row < (index)buf.content.size()) {
+        if (cur.row < static_cast<index>(buf.content.size())) {
             buf.content = buf.content
                 .update(cur.row, [&] (auto ln2) { return ln1 + ln2; })
                 .erase(cur.row - 1);
@@ -429,7 +429,7 @@ buffer delete_char_right(buffer buf)
 
 std::pair<buffer, text> cut_rest(buffer buf)
 {
-    if (buf.cursor.row < (index)buf.content.size()) {
+    if (buf.cursor.row < static_cast<index>(buf.content.size())) {
         auto ln  = buf.content[buf.cursor.row];
         auto chr = line_char(ln, buf.cursor.col);
         if (chr < ln.size()) {
@@ -447,7 +447,7 @@ std::pair<buffer, text> cut_rest(buffer buf)
 buffer insert_text(buffer buf, text paste)
 {
     auto cur = buf.cursor;
-    if (cur.row < (index)buf.content.size()) {
+    if (cur.row < static_cast<index>(buf.content.size())) {
         auto ln1 = buf.content[cur.row];
         auto chr = line_char(ln1, cur.col);
         buf.content = buf.content.set(cur.row, ln1.take(chr) + paste[0]);
@@ -475,7 +475,7 @@ text selected_text(buffer buf)
     else
         return // actually add the imaginary line if the selection
                // ends there
-            (ends.row == (index)buf.content.size()
+            (ends.row == static_cast<index>(buf.content.size())
                 ? buf.content.push_back({})
                 : buf.content)
             .take(ends.row + 1)
@@ -495,7 +495,7 @@ std::pair<buffer, text> cut(buffer buf)
     if (starts != ends) {
         if (starts.row != ends.row) {
             auto content =
-                ends.row == (index)buf.content.size()
+                ends.row == static_cast<index>(buf.content.size())
                 ? buf.content.push_back({}) // add the imaginary line
                 : buf.content;
             buf.content = content
@@ -536,7 +536,7 @@ buffer start_selection(buffer buf)
 buffer select_whole_buffer(buffer buf)
 {
     buf.cursor = {0, 0};
-    buf.selection_start = {(index)buf.content.size(), (index)buf.content.back().size()};
+    buf.selection_start = {static_cast<index>(buf.content.size()), static_cast<index>(buf.content.back().size())};
     return buf;
 }
 
@@ -552,8 +552,8 @@ std::tuple<coord, coord> selected_region(buffer buf)
         auto cursor = buf.cursor;
         auto starts = std::min(cursor, *buf.selection_start);
         auto ends   = std::max(cursor, *buf.selection_start);
-        starts.col = starts.row < (index)buf.content.size() ? starts.col : 0;
-        ends.col   = ends.row < (index)buf.content.size() ? ends.col : 0;
+        starts.col = starts.row < static_cast<index>(buf.content.size()) ? starts.col : 0;
+	ends.col = ends.row < static_cast<index>(buf.content.size()) ? ends.col : 0;
         return {starts, ends};
     } else {
         return {};

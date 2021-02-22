@@ -75,8 +75,8 @@ namespace {
 
 key_seq from_special_str(const char* name)
 {
-    auto id = ::tigetstr((NCURSES_CONST char*)name);
-    if (!id || id == (char*)-1)
+    auto id = ::tigetstr(reinterpret_cast<NCURSES_CONST char*>(name));
+    if (!id || id == reinterpret_cast<char*>(-1))
         throw std::runtime_error{"tigetstr() error for: "s + name};
     auto code = ::key_defined(name);
     if (code <= 0)

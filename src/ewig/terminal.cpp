@@ -55,9 +55,9 @@ terminal::terminal(boost::asio::io_service& serv)
 
     ::start_color();
     ::use_default_colors();
-    ::init_pair((int)color::message,   COLOR_YELLOW, -1);
-    ::init_pair((int)color::selection, COLOR_BLACK, COLOR_YELLOW);
-    ::init_pair((int)color::mode_line_message, COLOR_WHITE, COLOR_RED);
+    ::init_pair(static_cast<int>(color::message),   COLOR_YELLOW, -1);
+    ::init_pair(static_cast<int>(color::selection), COLOR_BLACK, COLOR_YELLOW);
+    ::init_pair(static_cast<int>(color::mode_line_message), COLOR_WHITE, COLOR_RED);
 }
 
 coord terminal::size()
