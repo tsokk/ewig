@@ -19,6 +19,7 @@
 //
 
 #include "ewig/draw.hpp"
+#include "ewig/utils.hpp"
 
 #include <scelta.hpp>
 
@@ -85,9 +86,9 @@ void draw_text(const buffer& buf, coord size)
 
     auto str      = std::wstring{};
     auto first_ln = begin(buf.content) + min(buf.scroll.row,
-                                             static_cast<index>(buf.content.size()));
+                                             narrow_cast<index>(buf.content.size()));
     auto last_ln  = begin(buf.content) + min(size.row + buf.scroll.row,
-                                             static_cast<index>(buf.content.size()));
+                                             narrow_cast<index>(buf.content.size()));
     auto [starts, ends] = display_selected_region(buf);
 
     immer::for_each(first_ln, last_ln, [&, starts=starts, ends=ends] (auto ln) {
@@ -99,9 +100,9 @@ void draw_text(const buffer& buf, coord size)
             auto hl_first = row == starts.row ? std::max(starts.col, 0) : 0;
             auto hl_last  = row == ends.row   ? std::max(ends.col, 0) : str.size();
             ::addnwstr(str.c_str(), hl_first);
-            ::attron(COLOR_PAIR(static_cast<int>(color::selection)));
+            ::attron(COLOR_PAIR(narrow_cast<int>(color::selection)));
             ::addnwstr(str.c_str() + hl_first, hl_last - hl_first);
-            ::attroff(COLOR_PAIR(static_cast<int>(color::selection)));
+            ::attroff(COLOR_PAIR(narrow_cast<int>(color::selection)));
             ::addnwstr(str.c_str() + hl_last, str.size() - hl_last);
         } else {
             ::addwstr(str.c_str());
@@ -127,20 +128,20 @@ void draw_mode_line(const buffer& buf, index maxcol)
         [&] (const saving_file& file) {
             auto str        = std::string{"saving..."};
             auto size       = std::max(file.content.size(), std::size_t{1});
-            auto progress   = static_cast<float>(file.saved_lines) / size;
-            auto percentage = static_cast<int>(progress * 100);
+            auto progress   = narrow_cast<float>(file.saved_lines) / size;
+            auto percentage = narrow_cast<int>(progress * 100);
             ::move(getcury(stdscr), maxcol - str.size() - 6);
             attrset(A_NORMAL | A_BOLD);
-            ::attron(COLOR_PAIR(static_cast<int>(color::mode_line_message)));
+            ::attron(COLOR_PAIR(narrow_cast<int>(color::mode_line_message)));
             ::printw(" %s %*d%% ", str.c_str(), 2, percentage);
         },
         [&] (const loading_file& file) {
             auto str        = std::string{"loading..."};
-            auto progress   = static_cast<float>(file.loaded_bytes) / file.total_bytes;
-            auto percentage = static_cast<int>(progress * 100);
+            auto progress   = narrow_cast<float>(file.loaded_bytes) / file.total_bytes;
+            auto percentage = narrow_cast<int>(progress * 100);
             ::move(getcury(stdscr), maxcol - str.size() - 6);
             attrset(A_NORMAL | A_BOLD);
-            ::attron(COLOR_PAIR(static_cast<int>(color::mode_line_message)));
+            ::attron(COLOR_PAIR(narrow_cast<int>(color::mode_line_message)));
             ::printw(" %s %*d%% ", str.c_str(), 2, percentage);
         },
         [](auto&&) {})(buf.from);
@@ -149,10 +150,10 @@ void draw_mode_line(const buffer& buf, index maxcol)
 void draw_message(const message& msg)
 {
     attrset(A_NORMAL);
-    ::attron(COLOR_PAIR(static_cast<int>(color::message)));
+    ::attron(COLOR_PAIR(narrow_cast<int>(color::message)));
     ::addstr(" ");
     ::addstr(msg.content.get().c_str());
-    ::attroff(COLOR_PAIR(static_cast<int>(color::message)));
+    ::attroff(COLOR_PAIR(narrow_cast<int>(color::message)));
 }
 
 void draw_text_cursor(const buffer& buf, coord window_size)

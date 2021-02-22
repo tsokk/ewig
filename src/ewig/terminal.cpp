@@ -20,6 +20,7 @@
 
 #include "ewig/terminal.hpp"
 #include "ewig/draw.hpp"
+#include "ewig/utils.hpp"
 
 #include <boost/asio/read.hpp>
 
@@ -55,9 +56,9 @@ terminal::terminal(boost::asio::io_service& serv)
 
     ::start_color();
     ::use_default_colors();
-    ::init_pair(static_cast<int>(color::message),   COLOR_YELLOW, -1);
-    ::init_pair(static_cast<int>(color::selection), COLOR_BLACK, COLOR_YELLOW);
-    ::init_pair(static_cast<int>(color::mode_line_message), COLOR_WHITE, COLOR_RED);
+    ::init_pair(narrow_cast<int>(color::message),   COLOR_YELLOW, -1);
+    ::init_pair(narrow_cast<int>(color::selection), COLOR_BLACK, COLOR_YELLOW);
+    ::init_pair(narrow_cast<int>(color::mode_line_message), COLOR_WHITE, COLOR_RED);
 }
 
 coord terminal::size()

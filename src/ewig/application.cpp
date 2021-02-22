@@ -239,7 +239,7 @@ std::pair<application, lager::effect<action>> update(application state, action e
                     auto is_single_char = state.input.size() == 1;
                     auto [kres, kkey] = ev.key;
                     if (is_single_char && !kres && !std::iscntrl(kkey)) {
-                        auto key = static_cast<wchar_t>(kkey);
+                        auto key = narrow_cast<wchar_t>(kkey);
                         return {clear_input(state), [key] (auto ctx) {
                             ctx.dispatch(command_action{"insert", key});
                         }};

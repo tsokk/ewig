@@ -59,4 +59,13 @@ std::optional<T> optional_map(std::optional<T> v, Fn&& fn)
     return v ? std::forward<Fn>(fn)(std::move(*v)) : v;
 }
 
+template <typename Target, typename Source>
+Target narrow_cast(Source v)
+{
+    auto r = static_cast<Target>(v);
+    if (static_cast<Source>(r) != v)
+	throw std::runtime_error("narrow_cast<>() failed");
+    return r;
+}
+  
 } // namespace ewig
